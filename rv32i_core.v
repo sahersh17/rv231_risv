@@ -288,3 +288,11 @@ module rv32i_core #(
             mem_wb_valid      <= ex_mem_valid;
         end
     end
+// ------------------------------------------------------------------
+    // WB stage
+    // ------------------------------------------------------------------
+    assign wb_data      = mem_wb_mem_read ? mem_wb_load_data : mem_wb_alu_result;
+    assign wb_rd        = mem_wb_rd;
+    assign wb_reg_write = mem_wb_reg_write;
+    assign retire       = mem_wb_valid;
+endmodule
