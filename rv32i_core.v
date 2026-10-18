@@ -36,3 +36,30 @@ module rv32i_core #(
     wire        stall;           // load-use stall (from hazard unit)
     wire        redirect;        // taken branch / jump resolved in EX
     wire [31:0] redirect_pc;
+// ------------------------------------------------------------------
+    // IF stage
+    // ------------------------------------------------------------------
+    reg [31:0] pc;
+    assign imem_addr = pc;
+
+    always @(posedge clk) begin
+        if (rst)           pc <= RESET_PC;
+        else if (redirect) pc <= redirect_pc;
+        else if (!stall)   pc <= pc + 32'd4;
+    end
+
+    // IF/ID register
+    reg [31:0] if_id_pc, if_id_instr;
+    reg        if_id_valid;
+
+    always @(posedge clk) begin
+        if (rst || redirect) begin
+            if_id_pc    <= 32'd0;
+            if_id_instr <= NOP;
+            if_id_valid <= 1'b0;
+        end else if (!stall) begin
+            if_id_pc    <= pc;
+            if_id_instr <= imem_rdata;
+            if_id_valid <= 1'b1;
+        end
+    end
