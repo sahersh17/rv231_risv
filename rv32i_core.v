@@ -141,3 +141,91 @@ module rv32i_core #(
         end
     end
 
+
+// ------------------------------------------------------------------
+    // EX stage
+    // ------------------------------------------------------------------
+    // EX/MEM and MEM/WB registers (declared early for forwarding)
+    reg [31:0] ex_mem_alu_result, ex_mem_store_data;
+    reg [4:0]  ex_mem_rd;
+    reg [2:0]  ex_mem_funct3;
+    reg        ex_mem_reg_write, ex_mem_mem_read, ex_mem_mem_write, ex_mem_valid;
+
+    reg [31:0] mem_wb_alu_result, mem_wb_load_data;
+    reg [4:0]  mem_wb_rd;
+    reg        mem_wb_reg_write, mem_wb_mem_read, mem_wb_valid;
+
+    wire [1:0] fwd_a, fwd_b;
+    forwarding_unit u_fwd (
+        .id_ex_rs1(id_ex_rs1), .id_ex_rs2(id_ex_rs2),
+        .ex_mem_reg_write(ex_mem_reg_write), .ex_mem_rd(ex_mem_rd),
+        .mem_wb_reg_write(mem_wb_reg_write), .mem_wb_rd(mem_wb_rd),
+        .fwd_a(fwd_a), .fwd_b(fwd_b)
+    );
+
+    reg [31:0] op_a, op_b;   // forwarded register operands
+    always @(*) begin
+        case (fwd_a)
+            2'd1:    op_a = ex_mem_alu_result;
+            2'd2:    op_a = wb_data;
+            default: op_a = id_ex_rs1_val;
+        endcase
+        case (fwd_b)
+            2'd1:    op_b = ex_mem_alu_result;
+            2'd2:    op_b = wb_data;
+            default: op_b = id_ex_rs2_val;
+        endcase
+    end
+
+    wire [31:0] alu_in_a = id_ex_a_zero ? 32'd0 : (id_ex_a_pc ? id_ex_pc : op_a);
+    wire [31:0] alu_in_b = id_ex_alu_b_imm ? id_ex_imm : op_b;
+    wire [31:0] alu_out;
+
+    alu u_alu (.a(alu_in_a), .b(alu_in_b), .ctrl(id_ex_alu_ctrl), .y(alu_out));
+
+    // branch condition
+    wire eq  = (op_a == op_b);
+    wire lt  = ($signed(op_a) < $signed(op_b));
+    wire ltu = (op_a < op_b);
+    reg  branch_cond;
+    always @(*) begin
+        case (id_ex_funct3)
+            3'b000:  branch_cond = eq;     // BEQ
+            3'b001:  branch_cond = !eq;    // BNE
+            3'b100:  branch_cond = lt;     // BLT
+            3'b101:  branch_cond = !lt;    // BGE
+            3'b110:  branch_cond = ltu;    // BLTU
+            3'b111:  branch_cond = !ltu;   // BGEU
+            default: branch_cond = 1'b0;
+        endcase
+    end
+
+    wire        branch_taken = id_ex_is_branch & branch_cond;
+    wire [31:0] pc_plus_imm  = id_ex_pc + id_ex_imm;                 // branch / JAL
+    wire [31:0] jalr_target  = (op_a + id_ex_imm) & 32'hFFFF_FFFE;   // JALR
+
+    assign redirect    = branch_taken | id_ex_is_jal | id_ex_is_jalr;
+    assign redirect_pc = id_ex_is_jalr ? jalr_target : pc_plus_imm;
+
+    // JAL/JALR write PC+4 to rd
+    wire [31:0] ex_result = (id_ex_is_jal | id_ex_is_jalr) ? (id_ex_pc + 32'd4) : alu_out;
+
+    // EX/MEM register
+    always @(posedge clk) begin
+        if (rst) begin
+            ex_mem_alu_result <= 32'd0; ex_mem_store_data <= 32'd0;
+            ex_mem_rd <= 5'd0; ex_mem_funct3 <= 3'd0;
+            ex_mem_reg_write <= 0; ex_mem_mem_read <= 0; ex_mem_mem_write <= 0;
+            ex_mem_valid <= 0;
+        end else begin
+            ex_mem_alu_result <= ex_result;
+            ex_mem_store_data <= op_b;
+            ex_mem_rd         <= id_ex_rd;
+            ex_mem_funct3     <= id_ex_funct3;
+            ex_mem_reg_write  <= id_ex_reg_write;
+            ex_mem_mem_read   <= id_ex_mem_read;
+            ex_mem_mem_write  <= id_ex_mem_write;
+            ex_mem_valid      <= id_ex_valid;
+        end
+    end
+
