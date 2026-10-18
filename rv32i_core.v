@@ -229,3 +229,62 @@ module rv32i_core #(
         end
     end
 
+// ------------------------------------------------------------------
+    // MEM stage
+    // ------------------------------------------------------------------
+    assign dmem_addr = ex_mem_alu_result;
+
+    // store alignment
+    reg [31:0] st_data;
+    reg [3:0]  st_strb;
+    always @(*) begin
+        st_data = ex_mem_store_data;
+        st_strb = 4'b0000;
+        if (ex_mem_mem_write) begin
+            case (ex_mem_funct3[1:0])
+                2'b00: begin   // SB
+                    st_data = {4{ex_mem_store_data[7:0]}};
+                    st_strb = 4'b0001 << ex_mem_alu_result[1:0];
+                end
+                2'b01: begin   // SH
+                    st_data = {2{ex_mem_store_data[15:0]}};
+                    st_strb = ex_mem_alu_result[1] ? 4'b1100 : 4'b0011;
+                end
+                default: begin // SW
+                    st_data = ex_mem_store_data;
+                    st_strb = 4'b1111;
+                end
+            endcase
+        end
+    end
+    assign dmem_wdata = st_data;
+    assign dmem_wstrb = st_strb;
+
+    // load alignment + sign/zero extension
+    wire [31:0] ld_shifted = dmem_rdata >> {ex_mem_alu_result[1:0], 3'b000};
+    reg  [31:0] load_data;
+    always @(*) begin
+        case (ex_mem_funct3)
+            3'b000:  load_data = {{24{ld_shifted[7]}},  ld_shifted[7:0]};   // LB
+            3'b001:  load_data = {{16{ld_shifted[15]}}, ld_shifted[15:0]};  // LH
+            3'b100:  load_data = {24'd0, ld_shifted[7:0]};                  // LBU
+            3'b101:  load_data = {16'd0, ld_shifted[15:0]};                 // LHU
+            default: load_data = ld_shifted;                                // LW
+        endcase
+    end
+
+    // MEM/WB register
+    always @(posedge clk) begin
+        if (rst) begin
+            mem_wb_alu_result <= 32'd0; mem_wb_load_data <= 32'd0;
+            mem_wb_rd <= 5'd0;
+            mem_wb_reg_write <= 0; mem_wb_mem_read <= 0; mem_wb_valid <= 0;
+        end else begin
+            mem_wb_alu_result <= ex_mem_alu_result;
+            mem_wb_load_data  <= load_data;
+            mem_wb_rd         <= ex_mem_rd;
+            mem_wb_reg_write  <= ex_mem_reg_write;
+            mem_wb_mem_read   <= ex_mem_mem_read;
+            mem_wb_valid      <= ex_mem_valid;
+        end
+    end
