@@ -1,0 +1,159 @@
+
+9. Printing statistics.
+
+=== alu ===
+
+   Number of wires:               1456
+   Number of wire bits:           1552
+   Number of public wires:           4
+   Number of public wire bits:     100
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1484
+     $_ANDNOT_                     565
+     $_AND_                         32
+     $_MUX_                        341
+     $_NAND_                        90
+     $_NOR_                         50
+     $_NOT_                         46
+     $_ORNOT_                       54
+     $_OR_                         180
+     $_XNOR_                        50
+     $_XOR_                         76
+
+=== decoder ===
+
+   Number of wires:                265
+   Number of wire bits:            493
+   Number of public wires:          22
+   Number of public wire bits:     250
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                290
+     $_ANDNOT_                     183
+     $_AND_                          3
+     $_MUX_                          1
+     $_NAND_                         7
+     $_NOR_                          4
+     $_NOT_                          7
+     $_ORNOT_                       27
+     $_OR_                          58
+
+=== forwarding_unit ===
+
+   Number of wires:                 56
+   Number of wire bits:             74
+   Number of public wires:           8
+   Number of public wire bits:      26
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 52
+     $_ANDNOT_                       6
+     $_NAND_                         1
+     $_NOR_                          3
+     $_OR_                          22
+     $_XOR_                         20
+
+=== hazard_unit ===
+
+   Number of wires:                 33
+   Number of wire bits:             45
+   Number of public wires:           7
+   Number of public wire bits:      19
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 27
+     $_ANDNOT_                       5
+     $_NAND_                         1
+     $_NOR_                          2
+     $_OR_                           9
+     $_XOR_                         10
+
+=== regfile ===
+
+   Number of wires:               2204
+   Number of wire bits:           3332
+   Number of public wires:          41
+   Number of public wire bits:    1169
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3251
+     $_ANDNOT_                     101
+     $_AND_                          1
+     $_DFFE_PP_                   1024
+     $_MUX_                       2048
+     $_NAND_                         2
+     $_NOR_                          2
+     $_NOT_                          3
+     $_ORNOT_                        4
+     $_OR_                          56
+     $_XOR_                         10
+
+=== rv32i_core ===
+
+   Number of wires:               1476
+   Number of wire bits:           2431
+   Number of public wires:          81
+   Number of public wire bits:    1036
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2025
+     $_ANDNOT_                     452
+     $_AND_                         67
+     $_MUX_                        368
+     $_NAND_                       112
+     $_NOR_                         90
+     $_NOT_                        103
+     $_ORNOT_                       49
+     $_OR_                         158
+     $_SDFFE_PP0N_                  62
+     $_SDFFE_PP0P_                  32
+     $_SDFFE_PP1N_                   3
+     $_SDFF_PP0_                   308
+     $_XNOR_                        49
+     $_XOR_                        167
+     alu                             1
+     decoder                         1
+     forwarding_unit                 1
+     hazard_unit                     1
+     regfile                         1
+
+=== design hierarchy ===
+
+   rv32i_core                        1
+     alu                             1
+     decoder                         1
+     forwarding_unit                 1
+     hazard_unit                     1
+     regfile                         1
+
+   Number of wires:               5490
+   Number of wire bits:           7927
+   Number of public wires:         163
+   Number of public wire bits:    2600
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               7124
+     $_ANDNOT_                    1312
+     $_AND_                        103
+     $_DFFE_PP_                   1024
+     $_MUX_                       2758
+     $_NAND_                       213
+     $_NOR_                        151
+     $_NOT_                        159
+     $_ORNOT_                      134
+     $_OR_                         483
+     $_SDFFE_PP0N_                  62
+     $_SDFFE_PP0P_                  32
+     $_SDFFE_PP1N_                   3
+     $_SDFF_PP0_                   308
+     $_XNOR_                        99
+     $_XOR_                        283
+

@@ -1,0 +1,21 @@
+
+8. Printing statistics.
+
+=== rv32i_core ===
+
+   Number of wires:                797
+   Number of wire bits:           4512
+   Number of public wires:         797
+   Number of public wire bits:    4512
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2133
+     SB_CARRY                      308
+     SB_DFF                         44
+     SB_DFFESR                      94
+     SB_DFFESS                       3
+     SB_DFFSR                      242
+     SB_LUT4                      1438
+     SB_RAM40_4K                     4
+

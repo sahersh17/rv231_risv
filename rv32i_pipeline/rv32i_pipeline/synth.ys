@@ -1,0 +1,20 @@
+# ---------------------------------------------------------------
+# Generic Yosys synthesis of the RV32I core (technology independent)
+# Run:  yosys -s synth.ys      (or: make synth)
+# ---------------------------------------------------------------
+read_verilog -Irtl rtl/alu.v rtl/decoder.v rtl/regfile.v rtl/hazard_unit.v rtl/forwarding_unit.v rtl/rv32i_core.v
+hierarchy -check -top rv32i_core
+
+# per-module view first (keeps hierarchy) -> shows where the area goes
+synth -top rv32i_core
+tee -o reports/stat_hier.txt stat
+
+# flatten and map to a simple gate library for one comparable number
+flatten
+opt -full
+abc -g AND,NAND,OR,NOR,XOR,XNOR,MUX
+opt_clean
+tee -o reports/stat_gates.txt stat
+tee -o reports/ltp.txt ltp -noff
+
+write_verilog -noattr reports/rv32i_core_netlist.v

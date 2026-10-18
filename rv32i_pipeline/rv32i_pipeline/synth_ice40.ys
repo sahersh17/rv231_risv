@@ -1,0 +1,4 @@
+# FPGA-style mapping (Lattice iCE40 LUT4) - gives LUT / FF counts
+read_verilog -Irtl rtl/alu.v rtl/decoder.v rtl/regfile.v rtl/hazard_unit.v rtl/forwarding_unit.v rtl/rv32i_core.v
+synth_ice40 -top rv32i_core -flatten
+tee -o reports/stat_ice40.txt stat
